@@ -1,42 +1,38 @@
-# tetris
+# Tetris
 
-A Simple Tetris Game
+A browser-based Tetris clone with offline support.
 
-## Development
+## Features
+- Classic Tetris gameplay on HTML5 canvas.
+- Achievements and daily challenge modes.
+- Local leaderboard.
+- Installable Progressive Web App (PWA) with offline caching.
+- Basic analytics hooks.
 
-1. Install dependencies (none currently but sets up scripts):
+## Development Setup
+1. Install dependencies:
    ```bash
    npm install
    ```
-2. Run the development server:
+2. Start the development server:
    ```bash
    npm run dev
    ```
-   The site will be available at http://localhost:3000.
+   The app runs at http://localhost:3000.
+3. Run tests:
+   ```bash
+   npm test
+   ```
+4. Build optimized static files:
+   ```bash
+   npm run build
+   ```
+   Output is generated in the `dist` directory.
 
-## Build
-
-Build the static files to the `dist` directory:
-```bash
-npm run build
-```
+## Contribution Guidelines
+1. Fork the repository and create a branch for your change.
+2. Install dependencies and ensure `npm test` and `npm run build` complete without errors.
+3. Submit a pull request describing your changes.
 
 ## Deployment
-
-This project is configured to deploy to GitHub Pages using GitHub Actions. On every push to `main`, the site is built and published to the `gh-pages` environment.
-
-## Analytics
-
-Basic analytics hooks are available through `src/js/analytics.js`. The `track(eventName, data)` function logs game events such as game start, game over, line clear, and level up.
-
-To use a real analytics provider:
-
-1. Create a `src/js/config.js` file (ignored by Git) exporting your tracking key:
-
-   ```js
-   export const TRACKING_KEY = 'your-key-here';
-   ```
-
-2. Replace the `console.log` in `src/js/analytics.js` with calls to your analytics service (e.g., Google Analytics, Mixpanel).
-
-By default, a dummy key is used and events are simply logged to the console.
+The project is configured for GitHub Pages deployment via GitHub Actions. Pushes to `main` trigger a build and publish the contents of `dist` to the `gh-pages` environment.
