@@ -33,3 +33,26 @@ canvas {
 #sound-toggle {
   display: none;
 }
+
+#leaderboard-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid #000;
+  padding: 10px;
+  z-index: 100;
+  max-width: 80vmin;
+  font-family: sans-serif;
+}
+
+#leaderboard-modal.show {
+  display: block;
+}
+
+#leaderboard-modal ol {
+  padding-left: 20px;
+  margin: 0;
+}
