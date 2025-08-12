@@ -4,10 +4,21 @@ import Score from './score.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const scale = canvas.width / 10; // cell size 30 for 300 width
 
 const board = new Board(10, 20);
 const score = new Score();
+
+let scale = 30;
+function resizeCanvas() {
+  const block = Math.floor(
+    Math.min(window.innerWidth / board.width, window.innerHeight / board.height)
+  );
+  canvas.width = block * board.width;
+  canvas.height = block * board.height;
+  scale = block;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
 let currentPiece = randomPiece();
 let dropCounter = 0;
@@ -16,13 +27,56 @@ let dropInterval = baseDropInterval;
 let lastTime = 0;
 let animationId = null;
 let isRunning = false;
-
+let locking = false;
 const hud = document.getElementById('hud');
 const startBtn = document.getElementById('start');
 const pauseBtn = document.getElementById('pause');
+const soundToggle = document.getElementById('sound-toggle');
 
 startBtn.addEventListener('click', startGame);
 pauseBtn.addEventListener('click', pauseGame);
+const sounds = {};
+let soundEnabled = false;
+let soundOn = true;
+
+function playSfx(name) {
+  if (!soundEnabled || !soundOn) return;
+  const audio = sounds[name];
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }
+}
+
+async function loadSounds() {
+  const load = async (key, src) => {
+    try {
+      const res = await fetch(src, { method: 'HEAD' });
+      if (res.ok) {
+        sounds[key] = new Audio(src);
+      }
+    } catch {
+      // ignore missing file
+    }
+  };
+
+  await Promise.all([
+    load('move', './assets/sfx/move.wav'),
+    load('rotate', './assets/sfx/rotate.wav'),
+    load('line', './assets/sfx/line.wav'),
+  ]);
+
+  soundEnabled = Object.keys(sounds).length > 0;
+  if (soundEnabled) {
+    soundToggle.style.display = 'inline-block';
+    soundToggle.addEventListener('click', () => {
+      soundOn = !soundOn;
+      soundToggle.textContent = soundOn ? 'Mute' : 'Unmute';
+    });
+  }
+}
+
+loadSounds();
 
 function drawMatrix(matrix, offset, colorMap) {
   matrix.forEach((row, y) => {
@@ -38,10 +92,27 @@ function drawMatrix(matrix, offset, colorMap) {
   });
 }
 
+function getGhost() {
+  const ghost = {
+    x: currentPiece.x,
+    y: currentPiece.y,
+    matrix: currentPiece.matrix,
+  };
+  while (!collide(board, ghost, 0, 1)) {
+    ghost.y += 1;
+  }
+  return ghost;
+}
+
 function draw() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   drawMatrix(board.grid, { x: 0, y: 0 }, null);
+  const ghost = getGhost();
+  ctx.save();
+  ctx.globalAlpha = 0.3;
+  drawMatrix(ghost.matrix, { x: ghost.x, y: ghost.y }, currentPiece.color);
+  ctx.restore();
   drawMatrix(currentPiece.matrix, { x: currentPiece.x, y: currentPiece.y }, currentPiece.color);
 }
 
@@ -67,6 +138,9 @@ function collide(boardObj, piece, offsetX = 0, offsetY = 0) {
 function mergeAndSpawn() {
   board.merge(currentPiece);
   const lines = board.clearLines();
+  if (lines) {
+    playSfx('line');
+  }
   const leveledUp = score.addLines(lines);
   if (leveledUp) {
     dropInterval = Math.max(100, baseDropInterval - score.level * 100);
@@ -79,42 +153,101 @@ function mergeAndSpawn() {
   }
 }
 
-function movePiece(dx, dy) {
+function movePiece(dx, dy, user = false) {
+  if (locking) return;
   if (!collide(board, currentPiece, dx, dy)) {
     currentPiece.x += dx;
     currentPiece.y += dy;
+    if (user) {
+      playSfx('move');
+    }
   } else if (dy === 1) {
-    mergeAndSpawn();
+    if (user) {
+      playSfx('move');
+    }
+    lockPiece();
   }
   dropCounter = 0;
 }
 
-function rotatePiece() {
+function rotatePiece(user = false) {
+  if (locking) return;
   currentPiece.rotate();
   if (collide(board, currentPiece)) {
     currentPiece.rotateBack();
+  } else if (user) {
+    playSfx('rotate');
   }
+}
+
+function lockPiece() {
+  locking = true;
+  const pieceCopy = {
+    matrix: currentPiece.matrix.map((row) => row.slice()),
+    x: currentPiece.x,
+    y: currentPiece.y,
+    color: currentPiece.color,
+  };
+  let alpha = 1;
+  function fade() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawMatrix(board.grid, { x: 0, y: 0 }, null);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    drawMatrix(pieceCopy.matrix, { x: pieceCopy.x, y: pieceCopy.y }, pieceCopy.color);
+    ctx.restore();
+    alpha -= 0.1;
+    if (alpha > 0) {
+      requestAnimationFrame(fade);
+    } else {
+      currentPiece = pieceCopy;
+      mergeAndSpawn();
+      locking = false;
+    }
+  }
+  fade();
 }
 
 document.addEventListener('keydown', (event) => {
   if (!isRunning) return;
   switch (event.key) {
     case 'ArrowLeft':
-      movePiece(-1, 0);
+      movePiece(-1, 0, true);
       break;
     case 'ArrowRight':
-      movePiece(1, 0);
+      movePiece(1, 0, true);
       break;
     case 'ArrowDown':
-      movePiece(0, 1);
+      movePiece(0, 1, true);
       break;
     case 'ArrowUp':
-      rotatePiece();
+      rotatePiece(true);
+      break;
+    case ' ':
+      hardDrop();
       break;
     default:
       break;
   }
 });
+
+function hardDrop() {
+  if (locking) return;
+  const ghost = getGhost();
+  let distance = ghost.y - currentPiece.y;
+  function step() {
+    if (distance > 0) {
+      currentPiece.y += 1;
+      distance -= 1;
+      draw();
+      requestAnimationFrame(step);
+    } else {
+      lockPiece();
+    }
+  }
+  step();
+}
 
 function updateHUD() {
   hud.innerHTML = `Score: ${score.score}<br>Level: ${score.level}<br>Lines: ${score.lines}`;
@@ -142,10 +275,12 @@ function update(time = 0) {
   const delta = time - lastTime;
   lastTime = time;
   dropCounter += delta;
-  if (dropCounter > dropInterval) {
-    movePiece(0, 1);
+  if (!locking) {
+    if (dropCounter > dropInterval) {
+      movePiece(0, 1);
+    }
+    draw();
   }
-  draw();
   updateHUD();
   animationId = requestAnimationFrame(update);
 }
