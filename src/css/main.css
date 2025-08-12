@@ -56,3 +56,28 @@ canvas {
   padding-left: 20px;
   margin: 0;
 }
+
+#side-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #000;
+  padding: 10px;
+  font-family: sans-serif;
+  max-width: 200px;
+}
+
+#side-panel ul {
+  list-style: none;
+  padding-left: 15px;
+  margin: 0 0 10px 0;
+}
+
+#side-panel li.locked {
+  opacity: 0.5;
+}
+
+#side-panel li.unlocked {
+  font-weight: bold;
+}
