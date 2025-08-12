@@ -1,8 +1,17 @@
 import Board from './board.js';
-import { randomPiece } from './piece.js';
+import { randomPiece, setSeed } from './piece.js';
 import Score from './score.js';
 import { addEntry, showLeaderboard, setup as setupLeaderboard } from './leaderboard.js';
 import { track } from './analytics.js';
+import {
+  initAchievementsPanel,
+  startSession as achStart,
+  recordLineClear,
+  recordLevel,
+  markGameOver,
+  getDailySeed,
+  updateDailyStatus,
+} from './achievements.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -34,13 +43,32 @@ const hud = document.getElementById('hud');
 const startBtn = document.getElementById('start');
 const pauseBtn = document.getElementById('pause');
 const soundToggle = document.getElementById('sound-toggle');
+const dailyBtn = document.getElementById('daily-start');
 setupLeaderboard();
+initAchievementsPanel();
 
-startBtn.addEventListener('click', startGame);
+let isDaily = false;
+
+startBtn.addEventListener('click', () => {
+  isDaily = false;
+  setSeed();
+  startGame();
+});
 pauseBtn.addEventListener('click', pauseGame);
 const sounds = {};
 let soundEnabled = false;
 let soundOn = true;
+
+if (dailyBtn) {
+  dailyBtn.addEventListener('click', () => {
+    isDaily = true;
+    setSeed(getDailySeed());
+    board.reset();
+    score.reset();
+    startGame();
+    updateDailyStatus();
+  });
+}
 
 function playSfx(name) {
   if (!soundEnabled || !soundOn) return;
@@ -145,7 +173,9 @@ function mergeAndSpawn() {
     playSfx('line');
     track('line_clear', { lines });
   }
+  recordLineClear(lines);
   const leveledUp = score.addLines(lines);
+  recordLevel(score.level);
   if (leveledUp) {
     dropInterval = Math.max(100, baseDropInterval - score.level * 100);
     track('level_up', { level: score.level });
@@ -160,6 +190,10 @@ function mergeAndSpawn() {
     board.reset();
     score.reset();
     dropInterval = baseDropInterval;
+    markGameOver(isDaily);
+    isDaily = false;
+    updateDailyStatus();
+    setSeed();
   }
 }
 
@@ -265,6 +299,7 @@ function updateHUD() {
 
 function startGame() {
   if (!isRunning) {
+    achStart();
     isRunning = true;
     lastTime = 0;
     track('game_start');

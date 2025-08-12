@@ -46,6 +46,22 @@ const COLORS = {
   Z: 'red',
 };
 
+let rng = Math.random;
+
+export function setSeed(seed) {
+  if (seed === undefined || seed === null) {
+    rng = Math.random;
+    return;
+  }
+  let s = seed >>> 0;
+  rng = function () {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function rotateMatrix(matrix) {
   const N = matrix.length;
   const M = matrix[0].length;
@@ -78,6 +94,6 @@ export class Piece {
 
 export function randomPiece() {
   const types = Object.keys(SHAPES);
-  const type = types[(Math.random() * types.length) | 0];
+  const type = types[(rng() * types.length) | 0];
   return new Piece(type);
 }
