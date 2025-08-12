@@ -1,15 +1,28 @@
 import Board from './board.js';
 import { randomPiece } from './piece.js';
+import Score from './score.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const scale = canvas.width / 10; // cell size 30 for 300 width
 
 const board = new Board(10, 20);
+const score = new Score();
+
 let currentPiece = randomPiece();
 let dropCounter = 0;
-let dropInterval = 1000;
+const baseDropInterval = 1000;
+let dropInterval = baseDropInterval;
 let lastTime = 0;
+let animationId = null;
+let isRunning = false;
+
+const hud = document.getElementById('hud');
+const startBtn = document.getElementById('start');
+const pauseBtn = document.getElementById('pause');
+
+startBtn.addEventListener('click', startGame);
+pauseBtn.addEventListener('click', pauseGame);
 
 function drawMatrix(matrix, offset, colorMap) {
   matrix.forEach((row, y) => {
@@ -53,10 +66,16 @@ function collide(boardObj, piece, offsetX = 0, offsetY = 0) {
 
 function mergeAndSpawn() {
   board.merge(currentPiece);
-  board.clearLines();
+  const lines = board.clearLines();
+  const leveledUp = score.addLines(lines);
+  if (leveledUp) {
+    dropInterval = Math.max(100, baseDropInterval - score.level * 100);
+  }
   currentPiece = randomPiece();
   if (collide(board, currentPiece)) {
     board.reset();
+    score.reset();
+    dropInterval = baseDropInterval;
   }
 }
 
@@ -78,6 +97,7 @@ function rotatePiece() {
 }
 
 document.addEventListener('keydown', (event) => {
+  if (!isRunning) return;
   switch (event.key) {
     case 'ArrowLeft':
       movePiece(-1, 0);
@@ -96,7 +116,29 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+function updateHUD() {
+  hud.innerHTML = `Score: ${score.score}<br>Level: ${score.level}<br>Lines: ${score.lines}`;
+}
+
+function startGame() {
+  if (!isRunning) {
+    isRunning = true;
+    lastTime = 0;
+    update();
+  }
+}
+
+function pauseGame() {
+  if (isRunning) {
+    isRunning = false;
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+    }
+  }
+}
+
 function update(time = 0) {
+  if (!isRunning) return;
   const delta = time - lastTime;
   lastTime = time;
   dropCounter += delta;
@@ -104,7 +146,8 @@ function update(time = 0) {
     movePiece(0, 1);
   }
   draw();
-  requestAnimationFrame(update);
+  updateHUD();
+  animationId = requestAnimationFrame(update);
 }
 
-update();
+updateHUD();
