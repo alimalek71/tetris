@@ -1,0 +1,15 @@
+{
+  "name": "tetris",
+  "version": "1.0.0",
+  "description": "A Simple Tetris Game",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "rm -rf dist && mkdir dist && cp index.html dist/ && cp -R src dist/",
+    "test": "echo \"No tests\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
