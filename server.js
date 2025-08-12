@@ -11,7 +11,9 @@ const server = http.createServer((req, res) => {
   const contentType = {
     '.html': 'text/html',
     '.js': 'text/javascript',
-    '.css': 'text/css'
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.svg': 'image/svg+xml'
   }[ext] || 'text/plain';
 
   fs.readFile(filePath, (err, content) => {

@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "A Simple Tetris Game",
   "main": "index.js",
-  "scripts": {
+    "scripts": {
     "dev": "node server.js",
-    "build": "rm -rf dist && mkdir dist && cp index.html dist/ && cp -R src dist/",
-    "test": "echo \"No tests\""
+    "build": "npx esbuild src/js/main.js --bundle --minify --format=iife --outfile=main.js && npx esbuild src/css/main.css --minify --outfile=main.css",
+    "test": "echo \"No tests\"",
+    "compress:sounds": "for f in assets/sfx/*.wav; do [ -f \"$f\" ] && ffmpeg -i \"$f\" -b:a 96k \"${f%.wav}.mp3\"; done"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.25.8"
+  }
 }
