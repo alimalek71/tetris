@@ -1,41 +1,42 @@
-# Tetris
+# tetris
 
-A simple Tetris game with offline support and progressive web app (PWA) features.
+A Simple Tetris Game
 
-## Features
+## Development
 
-- Classic gameplay rendered on a responsive canvas
-- Achievements panel and daily challenge mode
-- Local leaderboard stored in the browser
-- Installable PWA with offline caching via a service worker
-- Analytics hooks ready for integration
-
-## Development Setup
-
-1. Install dependencies:
+1. Install dependencies (none currently but sets up scripts):
    ```bash
    npm install
    ```
-2. Start the development server:
+2. Run the development server:
    ```bash
    npm run dev
    ```
-   The game is available at [http://localhost:3000](http://localhost:3000).
-3. Build optimized assets (bundled and minified `main.js` and `main.css`):
-   ```bash
-   npm run build
-   ```
-4. (Optional) Compress sound effects if present:
-   ```bash
-   npm run compress:sounds
-   ```
+   The site will be available at http://localhost:3000.
 
-## Contribution Guidelines
+## Build
 
-- Fork the repository and create a feature branch for your changes.
-- Run `npm test` and `npm run build` before committing.
-- Submit a pull request with a clear description of your changes.
+Build the static files to the `dist` directory:
+```bash
+npm run build
+```
 
 ## Deployment
 
-The project can be served via any static host, including GitHub Pages. Ensure `index.html`, `main.js`, `main.css`, `manifest.json`, and `service-worker.js` are deployed at the site root so the service worker can cache assets for offline play.
+This project is configured to deploy to GitHub Pages using GitHub Actions. On every push to `main`, the site is built and published to the `gh-pages` environment.
+
+## Analytics
+
+Basic analytics hooks are available through `src/js/analytics.js`. The `track(eventName, data)` function logs game events such as game start, game over, line clear, and level up.
+
+To use a real analytics provider:
+
+1. Create a `src/js/config.js` file (ignored by Git) exporting your tracking key:
+
+   ```js
+   export const TRACKING_KEY = 'your-key-here';
+   ```
+
+2. Replace the `console.log` in `src/js/analytics.js` with calls to your analytics service (e.g., Google Analytics, Mixpanel).
+
+By default, a dummy key is used and events are simply logged to the console.
