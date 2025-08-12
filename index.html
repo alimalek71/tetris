@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tetris</title>
-  <link rel="stylesheet" href="./src/css/main.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="./main.css" />
 </head>
 <body>
   <div id="hud"></div>
@@ -27,6 +28,13 @@
     <button id="clear-leaderboard">Clear</button>
     <button id="close-leaderboard">Close</button>
   </div>
-  <script type="module" src="./src/js/main.js"></script>
+  <script src="./main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js');
+      });
+    }
+  </script>
 </body>
 </html>
