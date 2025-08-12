@@ -1,6 +1,7 @@
 import Board from './board.js';
 import { randomPiece } from './piece.js';
 import Score from './score.js';
+import { addEntry, showLeaderboard, setup as setupLeaderboard } from './leaderboard.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -32,6 +33,7 @@ const hud = document.getElementById('hud');
 const startBtn = document.getElementById('start');
 const pauseBtn = document.getElementById('pause');
 const soundToggle = document.getElementById('sound-toggle');
+setupLeaderboard();
 
 startBtn.addEventListener('click', startGame);
 pauseBtn.addEventListener('click', pauseGame);
@@ -147,6 +149,10 @@ function mergeAndSpawn() {
   }
   currentPiece = randomPiece();
   if (collide(board, currentPiece)) {
+    const finalScore = score.score;
+    const name = prompt('Enter your name') || 'Anonymous';
+    addEntry(name, finalScore);
+    showLeaderboard();
     board.reset();
     score.reset();
     dropInterval = baseDropInterval;
