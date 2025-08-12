@@ -5,11 +5,15 @@
   "main": "index.js",
   "scripts": {
     "dev": "node server.js",
-    "build": "rm -rf dist && mkdir dist && cp index.html dist/ && cp -R src dist/",
+    "build": "node build.js",
     "test": "echo \"No tests\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "csso": "^5.0.5",
+    "terser": "^5.17.0"
+  }
 }
