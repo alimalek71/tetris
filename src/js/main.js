@@ -2,6 +2,7 @@ import Board from './board.js';
 import { randomPiece } from './piece.js';
 import Score from './score.js';
 import { addEntry, showLeaderboard, setup as setupLeaderboard } from './leaderboard.js';
+import { track } from './analytics.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -142,14 +143,17 @@ function mergeAndSpawn() {
   const lines = board.clearLines();
   if (lines) {
     playSfx('line');
+    track('line_clear', { lines });
   }
   const leveledUp = score.addLines(lines);
   if (leveledUp) {
     dropInterval = Math.max(100, baseDropInterval - score.level * 100);
+    track('level_up', { level: score.level });
   }
   currentPiece = randomPiece();
   if (collide(board, currentPiece)) {
     const finalScore = score.score;
+    track('game_over', { score: finalScore });
     const name = prompt('Enter your name') || 'Anonymous';
     addEntry(name, finalScore);
     showLeaderboard();
@@ -263,6 +267,7 @@ function startGame() {
   if (!isRunning) {
     isRunning = true;
     lastTime = 0;
+    track('game_start');
     update();
   }
 }
