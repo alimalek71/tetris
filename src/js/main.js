@@ -12,6 +12,7 @@ import {
   getDailySeed,
   updateDailyStatus,
 } from './achievements.js';
+import { setupTouchControls } from './controls.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -274,6 +275,13 @@ document.addEventListener('keydown', (event) => {
     default:
       break;
   }
+});
+
+setupTouchControls({
+  left: () => movePiece(-1, 0, true),
+  right: () => movePiece(1, 0, true),
+  rotate: () => rotatePiece(true),
+  down: () => movePiece(0, 1, true),
 });
 
 function hardDrop() {
