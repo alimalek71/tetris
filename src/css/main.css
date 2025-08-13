@@ -41,6 +41,20 @@ canvas {
   margin: 10px 0;
 }
 
+#touch-controls {
+  display: none;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 10px;
+}
+
+#touch-controls button {
+  padding: 10px;
+  font-size: 1rem;
+}
+
 #sound-toggle {
   display: none;
 }
@@ -90,6 +104,13 @@ canvas {
 #leaderboard-modal ol {
   padding-left: 20px;
   margin: 0;
+}
+
+@media (max-width: 767px) {
+  #touch-controls {
+    display: flex;
+    justify-content: center;
+  }
 }
 
 @media (min-width: 768px) {
