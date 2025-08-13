@@ -9,25 +9,27 @@
   <link rel="stylesheet" href="./src/css/main.css" />
 </head>
 <body>
-  <div id="hud"></div>
-  <canvas id="game" width="300" height="600"></canvas>
-  <div id="controls">
-    <button id="start">Start</button>
-    <button id="pause">Pause</button>
-    <button id="sound-toggle">Mute</button>
-  </div>
-  <div id="side-panel">
-    <h2>Achievements</h2>
-    <ul id="achievement-list"></ul>
-    <h2>Daily Challenge</h2>
-    <p id="daily-status"></p>
-    <button id="daily-start">Play</button>
-  </div>
-  <div id="leaderboard-modal">
-    <h2>Leaderboard</h2>
-    <ol id="leaderboard-list"></ol>
-    <button id="clear-leaderboard">Clear</button>
-    <button id="close-leaderboard">Close</button>
+  <div id="game-container">
+    <canvas id="game" width="300" height="600"></canvas>
+    <div id="hud"></div>
+    <div id="controls">
+      <button id="start">Start</button>
+      <button id="pause">Pause</button>
+      <button id="sound-toggle">Mute</button>
+    </div>
+    <div id="side-panel">
+      <h2>Achievements</h2>
+      <ul id="achievement-list"></ul>
+      <h2>Daily Challenge</h2>
+      <p id="daily-status"></p>
+      <button id="daily-start">Play</button>
+    </div>
+    <div id="leaderboard-modal">
+      <h2>Leaderboard</h2>
+      <ol id="leaderboard-list"></ol>
+      <button id="clear-leaderboard">Clear</button>
+      <button id="close-leaderboard">Close</button>
+    </div>
   </div>
   <script type="module" src="./src/js/main.js"></script>
   <script>
